@@ -132,7 +132,6 @@ validation_images=validation_images/255.
 # In[246]:
 
 
-from sklearn.model_selection import train_test_split
 train_x,test_x,train_y,test_y=train_test_split(train_images,train_labels,stratify=train_labels,
                                                test_size=0.16666,shuffle=True)
 train_x.shape,test_x.shape
@@ -152,32 +151,67 @@ model=keras.Sequential([
 # In[280]:
 
 
-from tensorflow.keras import optimizers
 model.compile(optimizer=optimizers.Adam(lr=0.01),
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'],
              )
 
 
-# In[ ]:
+# In[296]:
 
 
-model.fit(train_x, train_y, epochs=100,verbose=0,use_multiprocessing=True,workers=4,validation_data=(test_x,test_y))
-# model.fit(train_images, train_labels, epochs=100,verbose=1,use_multiprocessing=True,workers=4,validation_split=0.16666)
+# model.fit(train_x, train_y, epochs=100,verbose=0,use_multiprocessing=True,workers=4,validation_data=(test_x,test_y))
+model.fit(train_images, train_labels, epochs=30,verbose=0,use_multiprocessing=True,workers=4,validation_split=0.16666)
 
 
-# In[ ]:
+# In[297]:
 
 
 training_loss,training_accuracy=model.evaluate(train_images,train_labels)
 validation_loss,validation_accuracy=model.evaluate(validation_images,validation_labels)
 
 
-# In[ ]:
+# In[298]:
 
 
 print("Train Loss : %s and Traing Accuracy : %s"%(training_loss,training_accuracy))
 print("*"*50)
 print("*"*50)
 print("Validation Loss : %s and Validation Accuracy : %s"%(validation_loss,validation_accuracy))
+
+
+# In[300]:
+
+
+predictions=model.predict(validation_images)
+
+
+# In[310]:
+
+
+for i in range(3):
+    plt.figure(figsize=(2,2))
+    plt.imshow(validation_images[i],cmap=plt.cm.binary)
+    plt.xlabel('PC : {0} (AC : {1})'.format(labels[validation_labels[i]],labels[np.argmax(predictions[i])]))
+    plt.show()
+
+
+# ### Plot image result for random 30 images 
+
+# In[337]:
+
+
+plt.figure(figsize=(25,7))
+
+for i in range(30):
+    plt.subplot(3,10,i+1)
+    plt.xticks([])
+    plt.yticks([])
+    image_index=randint(0,validation_labels.shape[0])
+    plt.imshow(validation_images[image_index], cmap=plt.cm.binary)
+    if(validation_labels[image_index]==np.argmax(predictions[image_index])):
+        plt.xlabel('{0} ({1})'.format(labels[validation_labels[image_index]],labels[np.argmax(predictions[image_index])]),color='blue')
+    else:
+        plt.xlabel('{0} ({1})'.format(labels[validation_labels[image_index]],labels[np.argmax(predictions[image_index])]),color='red')
+plt.show()
 
