@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[177]:
+# In[1]:
 
 
 # %load load_packages.py
@@ -17,6 +17,10 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import cv2
 import warnings
+from random import randint
+from tensorflow.keras import optimizers
+from sklearn.model_selection import train_test_split
+
 warnings.filterwarnings(action='ignore')
 
 def print_package_versions(log_flag=False):
@@ -34,14 +38,14 @@ print_package_versions(True)
 
 # ### <a href="https://github.com/zalandoresearch/fashion-mnist">MNIST Dataset for Fashion</a>
 
-# In[49]:
+# In[2]:
 
 
 fashion_mnist=keras.datasets.fashion_mnist
 (train_images,train_labels),(validation_images,validation_labels)=fashion_mnist.load_data()
 
 
-# In[57]:
+# In[3]:
 
 
 print("No. of images in Train Dataset : ",train_images.shape[0])
@@ -52,7 +56,7 @@ print("No. of images in Validation Dataset : ",validation_images.shape[0])
 print("Shape of images in Validation Dataset :",validation_images.shape[1:])
 
 
-# In[65]:
+# In[4]:
 
 
 print("No. of Fashion Categories in Training :",np.unique(train_labels).shape[0])
@@ -61,7 +65,7 @@ print("*"*50)
 print("No. of Fashion Categories in Validation :",np.unique(validation_labels).shape[0])
 
 
-# In[66]:
+# In[5]:
 
 
 labels=['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat', 
@@ -70,7 +74,7 @@ labels=['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat',
 
 # ### PreProcess the data
 
-# In[165]:
+# In[6]:
 
 
 def render_images(images,image_labels,grid_flag=False,flag_cv2=False):
@@ -100,7 +104,7 @@ for i in range(2):
     render_images(train_images[i],labels[train_labels[i]])
 
 
-# In[166]:
+# In[7]:
 
 
 print("Grid Rendering :")    
@@ -115,21 +119,21 @@ render_images(train_images[0:30],train_labels[0:30],grid_flag=True)
 # 4. Evaluated the Model Accuracy on Hold-Out Set or Validation-Set
 # 5. Make Prediction for Scoring Data-Set
 
-# In[174]:
+# In[8]:
 
 
 # import warnings
 # warnings.filterwarnings(action='ignore')
 
 
-# In[181]:
+# In[9]:
 
 
 train_images=train_images/255.
 validation_images=validation_images/255.
 
 
-# In[246]:
+# In[10]:
 
 
 train_x,test_x,train_y,test_y=train_test_split(train_images,train_labels,stratify=train_labels,
@@ -137,41 +141,41 @@ train_x,test_x,train_y,test_y=train_test_split(train_images,train_labels,stratif
 train_x.shape,test_x.shape
 
 
-# In[279]:
+# In[12]:
 
 
 model=keras.Sequential([
     keras.layers.Flatten(input_shape=train_images.shape[1:]),
     keras.layers.Dense(128, activation=tf.nn.relu),
+    keras.layers.Dropout(rate=0.0),
     keras.layers.Dense(10, activation=tf.nn.softmax),
-    keras.layers.Dropout(rate=0.0)
 ])
 
 
-# In[280]:
+# In[21]:
 
 
-model.compile(optimizer=optimizers.Adam(lr=0.01),
+model.compile(optimizer="adam",
               loss='sparse_categorical_crossentropy',
               metrics=['accuracy'],
              )
 
 
-# In[296]:
+# In[22]:
 
 
 # model.fit(train_x, train_y, epochs=100,verbose=0,use_multiprocessing=True,workers=4,validation_data=(test_x,test_y))
-model.fit(train_images, train_labels, epochs=30,verbose=0,use_multiprocessing=True,workers=4,validation_split=0.16666)
+model.fit(train_images, train_labels, epochs=10,verbose=0,use_multiprocessing=True,workers=4,validation_split=0.16666)
 
 
-# In[297]:
+# In[23]:
 
 
 training_loss,training_accuracy=model.evaluate(train_images,train_labels)
 validation_loss,validation_accuracy=model.evaluate(validation_images,validation_labels)
 
 
-# In[298]:
+# In[24]:
 
 
 print("Train Loss : %s and Traing Accuracy : %s"%(training_loss,training_accuracy))
@@ -180,13 +184,19 @@ print("*"*50)
 print("Validation Loss : %s and Validation Accuracy : %s"%(validation_loss,validation_accuracy))
 
 
-# In[300]:
+# In[25]:
 
 
 predictions=model.predict(validation_images)
 
 
-# In[310]:
+# In[ ]:
+
+
+
+
+
+# In[26]:
 
 
 for i in range(3):
@@ -198,7 +208,7 @@ for i in range(3):
 
 # ### Plot image result for random 30 images 
 
-# In[337]:
+# In[27]:
 
 
 plt.figure(figsize=(25,7))
